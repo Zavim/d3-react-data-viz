@@ -1,17 +1,33 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { csvParse } from 'd3';
+
+const App = () => {
+  const [data, setData] = useState(null);
+
+  const fetchText = async (file) => {
+    return await file.text();
+  };
+
+  const handleChange = (event) => {
+    let file = event.target.files[0];
+    fetchText(file).then(text => {
+      const data = csvParse(text);
+      setData(data);
+    }
+    );
+  };
+
+  return <>
+    <input type="file" name="file" multiple={false} accept=".csv" onChange={handleChange} />
+    {data ? (
+      data.map(d => <div key={d['Keyword']} style={{ backgroundColor: d['RGB hex value'], width: '100px', height: '100px' }}></div>)
+    ) :
+      <div>no data to display</div>}
+  </>;
+};
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
