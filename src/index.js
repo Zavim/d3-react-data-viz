@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { csvParse } from 'd3';
+import { csvParse, arc, pie } from 'd3';
 
 const App = () => {
   const [data, setData] = useState(null);
@@ -18,10 +18,32 @@ const App = () => {
     );
   };
 
+  const width = 960;
+  const height = 500;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  const pieArc = arc()
+    .innerRadius(0)
+    .outerRadius(width);
+
+  const colorPie = pie().value(1);
+
   return <>
-    <input type="file" name="file" multiple={false} accept=".csv" onChange={handleChange} />
+    <div>
+      <input type="file" name="file" multiple={false} accept=".csv" onChange={handleChange} />
+    </div>
     {data ? (
-      data.map(d => <div key={d['Keyword']} style={{ backgroundColor: d['RGB hex value'], width: '100px', height: '100px' }}></div>)
+      <svg width={width} height={height}>
+        <g transform={`translate(${centerX},${centerY})`}>
+          {colorPie(data).map((d) => (
+            <path
+              fill={d.data['RGB hex value']}
+              d={pieArc(d)} />
+          ))}
+        </g>
+      </svg>
+
     ) :
       <div>no data to display</div>}
   </>;
